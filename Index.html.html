@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeQuest — L'Académie du Code</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b10;
+  --surface: #0f1420;
+  --surface2: #161d2e;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaf0;
+  --text-dim: rgba(232,234,240,0.45);
+  --text-mid: rgba(232,234,240,0.7);
+  --gold: #f0c040;
+  --gold2: #c89020;
+  --gold-dim: rgba(240,192,64,0.15);
+  --blue: #4a9eff;
+  --blue-dim: rgba(74,158,255,0.12);
+  --green: #4ade80;
+  --green-dim: rgba(74,222,128,0.1);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.1);
+  --purple: #c084fc;
+  --purple-dim: rgba(192,132,252,0.1);
+  --cyan: #22d3ee;
+  --orange: #fb923c;
+  /* Tier colors */
+  --tier-novice: #6b7280;
+  --tier-apprentice: #34d399;
+  --tier-mage: #60a5fa;
+  --tier-master: #c084fc;
+  --tier-arch: #f0c040;
+  --tier-legend: #f97316;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 0%, rgba(240,192,64,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 100%, rgba(74,158,255,0.04) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ======= SCROLLBAR ======= */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--gold2); border-radius: 2px; }
+
+/* ======= SCREENS ======= */
+.screen { display: none; position: relative; z-index: 1; min-height: 100vh; }
+.screen.active { display: block; }
+#screen-lang.active, #screen-tiers.active, #screen-end.active { display: flex; }
+
+/* ======= SCREEN: LANGUAGE SELECT ======= */
+#screen-lang {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 2rem 1rem; min-height: 100vh;
+}
+.lang-hero { text-align: center; margin-bottom: 3rem; }
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.3em;
+  color: var(--gold); opacity: 0.7;
+  text-transform: uppercase; margin-bottom: 1rem;
+}
+.game-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 900; line-height: 0.9;
+  background: linear-gradient(135deg, #f5e090 0%, var(--gold) 40%, #a06010 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 0.75rem;
+}
+.game-sub {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.15rem; color: var(--text-dim);
+  font-style: italic; font-weight: 300;
+}
+.lang-section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.25em;
+  color: var(--text-dim); text-transform: uppercase;
+  text-align: center; margin-bottom: 1.25rem;
+}
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.6rem; max-width: 900px; width: 100%; margin-bottom: 2.5rem;
+}
+.lang-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 0.9rem 0.5rem;
+  cursor: pointer; transition: all 0.2s ease;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.4rem;
+  color: var(--text-mid);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.05em;
+  text-align: center;
+}
+.lang-btn:hover { border-color: var(--gold2); color: var(--text); transform: translateY(-2px); background: var(--surface2); }
+.lang-btn.selected {
+  border-color: var(--gold); background: var(--gold-dim);
+  color: var(--gold); box-shadow: 0 0 20px rgba(240,192,64,0.15);
+}
+.lang-icon { font-size: 1.6rem; line-height: 1; }
+.lang-start-btn {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  border: none; border-radius: 4px;
+  padding: 0.9rem 2.5rem;
+  color: #080b10; font-family: 'Cinzel', serif;
+  font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.08em;
+  transition: all 0.2s; opacity: 0.4; pointer-events: none;
+  text-transform: uppercase;
+}
+.lang-start-btn.ready { opacity: 1; pointer-events: all; }
+.lang-start-btn.ready:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(240,192,64,0.4); }
+
+/* ======= TIER OVERVIEW ======= */
+#screen-tiers {
+  padding: 3rem 1.5rem;
+  max-width: 900px; margin: 0 auto;
+  display: none; flex-direction: column; align-items: center;
+}
+#screen-tiers.active { display: flex; }
+.tiers-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700; text-align: center; margin-bottom: 0.5rem;
+  color: var(--gold);
+}
+.tiers-sub { color: var(--text-dim); font-size: 0.95rem; text-align: center; margin-bottom: 2.5rem; font-style: italic; }
+.tiers-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.8rem; width: 100%; margin-bottom: 2.5rem;
+}
+.tier-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1.25rem 1.5rem;
+  position: relative; overflow: hidden;
+}
+.tier-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+}
+.tier-card[data-tier="1"]::before { background: var(--tier-novice); }
+.tier-card[data-tier="2"]::before { background: var(--tier-apprentice); }
+.tier-card[data-tier="3"]::before { background: var(--tier-mage); }
+.tier-card[data-tier="4"]::before { background: var(--tier-master); }
+.tier-card[data-tier="5"]::before { background: var(--tier-arch); }
+.tier-card[data-tier="6"]::before { background: var(--tier-legend); }
+.tier-name {
+  font-family: 'Cinzel', serif; font-size: 0.85rem;
+  font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.3rem;
+}
+.tier-card[data-tier="1"] .tier-name { color: var(--tier-novice); }
+.tier-card[data-tier="2"] .tier-name { color: var(--tier-apprentice); }
+.tier-card[data-tier="3"] .tier-name { color: var(--tier-mage); }
+.tier-card[data-tier="4"] .tier-name { color: var(--tier-master); }
+.tier-card[data-tier="5"] .tier-name { color: var(--tier-arch); }
+.tier-card[data-tier="6"] .tier-name { color: var(--tier-legend); }
+.tier-emoji { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.tier-desc { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0.5rem; }
+.tier-topics {
+  display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem;
+}
+.tier-topic {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border); border-radius: 3px;
+  padding: 0.15rem 0.45rem; color: var(--text-dim);
+}
+.start-adventure-btn {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  border: none; border-radius: 4px; padding: 1rem 3rem;
+  color: #080b10; font-family: 'Cinzel', serif;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  transition: all 0.2s;
+}
+.start-adventure-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(240,192,64,0.4); }
+
+/* ======= GAME SCREEN ======= */
+#screen-game { padding: 1.5rem; max-width: 820px; margin: 0 auto; }
+
+/* HUD */
+.hud {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 1.2rem; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 6px;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.hud-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--gold);
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: 3px; padding: 0.2rem 0.5rem;
+}
+.hud-tier {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; font-weight: 600;
+  border-radius: 3px; padding: 0.2rem 0.6rem;
+}
+.hud-progress { flex: 1; }
+.hud-bar-track {
+  height: 4px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden;
+}
+.hud-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold2), var(--gold));
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px rgba(240,192,64,0.4);
+}
+.hud-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--text-dim);
+}
+.hud-score span { color: var(--gold); }
+.hud-lives { display: flex; gap: 0.2rem; }
+.heart { font-size: 0.85rem; transition: all 0.3s; }
+.heart.lost { filter: grayscale(1); opacity: 0.25; }
+
+/* TIER BANNER */
+.tier-banner {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.65rem 1rem; border-radius: 4px;
+  margin-bottom: 1.25rem; border: 1px solid;
+}
+.tier-banner-icon { font-size: 1.3rem; }
+.tier-banner-info {}
+.tier-banner-name {
+  font-family: 'Cinzel', serif; font-size: 0.8rem;
+  font-weight: 700; letter-spacing: 0.1em;
+}
+.tier-banner-qs {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; color: var(--text-dim); margin-top: 0.1rem;
+}
+
+/* SCENE */
+.scene-wrap { animation: fadeUp 0.4s ease forwards; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.concept-pill {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--blue-dim); border: 1px solid rgba(74,158,255,0.25);
+  border-radius: 100px; padding: 0.3rem 0.8rem; margin-bottom: 1rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+.scene-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1.75rem 2rem;
+  margin-bottom: 1.25rem; position: relative; overflow: hidden;
+}
+.scene-card::after {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+.scene-title {
+  font-family: 'Cinzel', serif; font-size: 1.25rem;
+  font-weight: 700; color: var(--text); margin-bottom: 0.85rem;
+  line-height: 1.3;
+}
+.scene-text {
+  font-size: 1.05rem; line-height: 1.85;
+  color: var(--text-mid); font-weight: 300;
+}
+.scene-text strong { color: var(--gold); font-weight: 600; }
+.scene-text em { color: var(--text-mid); font-style: italic; }
+.code-wrap {
+  background: #0a0d14; border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px; margin: 1.1rem 0; overflow: hidden;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.45rem 0.9rem; background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.code-dots { display: flex; gap: 0.35rem; }
+.code-dot { width: 8px; height: 8px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #ff5f56; }
+.code-dot:nth-child(2) { background: #ffbd2e; }
+.code-dot:nth-child(3) { background: #27c93f; }
+.code-lang-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.1em; color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+}
+.code-body {
+  padding: 1rem 1.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem; line-height: 1.75;
+  color: #a8c0d6; overflow-x: auto;
+}
+.kw { color: #ff79c6; }
+.fn { color: #50fa7b; }
+.str { color: #f1fa8c; }
+.num { color: #bd93f9; }
+.cmt { color: #505a72; font-style: italic; }
+.vr { color: #ffb86c; }
+.ty { color: #8be9fd; }
+.op { color: #ff79c6; }
+
+.hint-box {
+  display: flex; gap: 0.7rem; align-items: flex-start;
+  background: rgba(74,158,255,0.05); border: 1px solid rgba(74,158,255,0.18);
+  border-radius: 4px; padding: 0.9rem 1.1rem; margin: 0.9rem 0;
+}
+.hint-ico { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+.hint-txt { font-size: 0.9rem; color: var(--text-mid); line-height: 1.6; }
+.hint-txt strong { color: #7ab8ff; font-family: 'JetBrains Mono', monospace; font-weight: 400; }
+
+/* QUIZ */
+.quiz-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+  letter-spacing: 0.2em; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 0.6rem;
+}
+.quiz-q {
+  font-size: 1.05rem; color: var(--text); line-height: 1.65;
+  margin-bottom: 1rem; font-weight: 400;
+}
+.quiz-q code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+  background: rgba(255,255,255,0.07); border-radius: 3px;
+  padding: 0.1em 0.35em; color: var(--cyan);
+}
+.choices { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+.choice {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.85rem 1.1rem;
+  cursor: pointer; transition: all 0.18s ease;
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  font-family: 'Crimson Pro', serif; font-size: 0.97rem;
+  color: var(--text-mid); line-height: 1.45;
+  text-align: left; position: relative; overflow: hidden;
+}
+.choice::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(240,192,64,0.06) 0%, transparent 100%);
+  opacity: 0; transition: opacity 0.2s;
+}
+.choice:hover { border-color: var(--border2); color: var(--text); transform: translateX(3px); }
+.choice:hover::before { opacity: 1; }
+.choice-key {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  color: var(--gold); opacity: 0.5; flex-shrink: 0;
+  min-width: 1.4rem; margin-top: 0.15rem;
+}
+.choice code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+  background: rgba(255,255,255,0.07); border-radius: 3px;
+  padding: 0.1em 0.3em; color: var(--cyan);
+}
+.choice.correct { border-color: var(--green)!important; background: var(--green-dim)!important; color: var(--text)!important; }
+.choice.wrong   { border-color: var(--red)!important;   background: var(--red-dim)!important;   color: var(--text)!important; }
+.choice.reveal  { border-color: var(--green); background: var(--green-dim); color: var(--text); opacity: 0.6; }
+.choice.disabled { pointer-events: none; opacity: 0.5; }
+
+/* FEEDBACK */
+.feedback {
+  border-radius: 4px; padding: 1.1rem 1.25rem;
+  margin-bottom: 1rem; display: none;
+  animation: fadeUp 0.3s ease;
+}
+.feedback.show { display: block; }
+.feedback.ok  { background: var(--green-dim); border: 1px solid rgba(74,222,128,0.3); }
+.feedback.bad { background: var(--red-dim);   border: 1px solid rgba(248,113,113,0.3); }
+.feedback-head {
+  font-family: 'Cinzel', serif; font-size: 0.95rem;
+  font-weight: 700; margin-bottom: 0.35rem;
+}
+.feedback.ok .feedback-head  { color: var(--green); }
+.feedback.bad .feedback-head { color: var(--red); }
+.feedback-body { font-size: 0.9rem; color: var(--text-mid); line-height: 1.6; }
+.feedback-body code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+  background: rgba(255,255,255,0.07); border-radius: 3px;
+  padding: 0.1em 0.3em; color: var(--cyan);
+}
+.next-btn {
+  display: none; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  border: none; border-radius: 4px; padding: 0.8rem 2rem;
+  color: #080b10; font-family: 'Cinzel', serif;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  transition: all 0.2s; margin-bottom: 1.5rem;
+}
+.next-btn.show { display: inline-flex; align-items: center; gap: 0.5rem; }
+.next-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(240,192,64,0.35); }
+
+/* TIER UNLOCK */
+.tier-unlock {
+  display: none; text-align: center; padding: 2.5rem 1.5rem;
+  background: var(--surface); border-radius: 8px;
+  border: 1px solid var(--border); margin-bottom: 1.5rem;
+  animation: fadeUp 0.5s ease;
+}
+.tier-unlock.show { display: block; }
+.unlock-badge { font-size: 4rem; margin-bottom: 0.75rem; animation: bounce 1s ease infinite alternate; }
+@keyframes bounce { from { transform: scale(1) rotate(-5deg); } to { transform: scale(1.1) rotate(5deg); } }
+.unlock-title {
+  font-family: 'Cinzel', serif; font-size: 1.8rem;
+  font-weight: 900; margin-bottom: 0.4rem;
+}
+.unlock-sub { font-size: 1rem; color: var(--text-dim); margin-bottom: 1.25rem; font-style: italic; }
+.unlock-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-bottom: 1.5rem; }
+.unlock-chip {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 3px; padding: 0.25rem 0.6rem; color: var(--text-dim);
+}
+.continue-btn {
+  background: transparent; border: 1px solid var(--gold2);
+  border-radius: 4px; padding: 0.75rem 2rem;
+  color: var(--gold); font-family: 'Cinzel', serif;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  transition: all 0.2s;
+}
+.continue-btn:hover { background: var(--gold-dim); transform: translateY(-2px); }
+
+/* END SCREEN */
+#screen-end {
+  display: none; min-height: 100vh; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3rem 1.5rem; text-align: center;
+}
+#screen-end.active { display: flex; }
+.end-trophy { font-size: 5rem; margin-bottom: 1rem; animation: bounce 1.2s ease infinite alternate; }
+.end-rank {
+  font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 900; margin-bottom: 0.5rem;
+}
+.end-score-line { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 0.5rem; }
+.end-score-line span { font-family: 'JetBrains Mono', monospace; color: var(--gold); font-size: 1.3rem; }
+.end-stars { display: flex; gap: 0.4rem; justify-content: center; margin: 1rem 0; }
+.star { font-size: 2rem; opacity: 0.15; transition: all 0.4s; }
+.star.lit { opacity: 1; filter: drop-shadow(0 0 10px rgba(240,192,64,0.8)); }
+.end-grade {
+  display: inline-block; font-family: 'Cinzel', serif;
+  font-size: 4rem; font-weight: 900; width: 90px; height: 90px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  margin: 1rem auto; border: 3px solid;
+}
+.end-tiers-done {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  justify-content: center; margin: 1.25rem 0; max-width: 600px;
+}
+.et-chip {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  border-radius: 3px; padding: 0.3rem 0.7rem; border: 1px solid;
+}
+.end-msg { font-size: 1rem; color: var(--text-dim); max-width: 500px; line-height: 1.7; margin: 0.5rem auto 1.5rem; font-style: italic; }
+.end-restart {
+  background: transparent; border: 1px solid rgba(240,192,64,0.4);
+  border-radius: 4px; padding: 0.8rem 2rem;
+  color: var(--gold); font-family: 'Cinzel', serif;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  transition: all 0.2s; margin: 0 0.4rem;
+}
+.end-restart:hover { background: var(--gold-dim); transform: translateY(-2px); }
+
+@media(max-width:600px){
+  .scene-card { padding: 1.25rem; }
+  .tiers-grid { grid-template-columns: 1fr; }
+  .lang-grid { grid-template-columns: repeat(3,1fr); }
+  .hud { gap: 0.4rem; }
+}
+
+/* ======= ABOUT BUTTON (floating) ======= */
+.about-fab {
+  position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 999;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  border: none; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 900;
+  color: #07090f;
+  box-shadow: 0 4px 20px rgba(240,192,64,0.4);
+  transition: all 0.22s;
+  display: flex; align-items: center; justify-content: center;
+}
+.about-fab:hover { transform: scale(1.12) rotate(10deg); box-shadow: 0 6px 28px rgba(240,192,64,0.6); }
+
+/* ======= ABOUT MODAL ======= */
+.about-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(8,11,16,0.88);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  padding: 1.5rem;
+}
+.about-overlay.open { display: flex; }
+
+.about-card {
+  background: var(--surface);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 12px;
+  max-width: 440px; width: 100%;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  animation: pop-about 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  max-height: 90vh; overflow-y: auto;
+}
+
+@keyframes pop-about {
+  from { opacity:0; transform: scale(0.88) translateY(20px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+.about-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.3rem; cursor: pointer; line-height: 1;
+  transition: color 0.2s;
+}
+.about-close:hover { color: var(--gold); }
+
+.about-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 900;
+  color: #07090f; margin: 0 auto 1.25rem;
+  box-shadow: 0 0 0 4px rgba(240,192,64,0.15), 0 0 0 8px rgba(240,192,64,0.05);
+}
+
+.about-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem; font-weight: 700;
+  text-align: center; color: var(--text);
+  margin-bottom: 0.25rem; line-height: 1.3;
+}
+
+.about-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.15em;
+  color: var(--gold); text-align: center;
+  text-transform: uppercase; margin-bottom: 0.25rem;
+}
+
+.about-institution {
+  font-size: 0.88rem; color: var(--text-dim);
+  text-align: center; font-style: italic;
+  margin-bottom: 1.5rem; line-height: 1.5;
+}
+
+.about-divider {
+  height: 1px; background: rgba(240,192,64,0.15);
+  margin: 1.25rem 0;
+}
+
+.about-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 0.25em;
+  color: var(--text-dim); text-transform: uppercase;
+  margin-bottom: 0.85rem;
+}
+
+.about-contacts { display: flex; flex-direction: column; gap: 0.65rem; }
+
+.contact-row {
+  display: flex; align-items: center; gap: 0.85rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.75rem 1rem;
+  text-decoration: none; color: var(--text);
+  transition: all 0.18s;
+  cursor: pointer;
+}
+.contact-row:hover { border-color: rgba(240,192,64,0.4); background: var(--gold-dim); transform: translateX(3px); }
+
+.contact-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+
+.contact-info { flex: 1; min-width: 0; }
+.contact-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; color: var(--text-dim);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+.contact-value {
+  font-size: 0.9rem; color: var(--text);
+  font-weight: 500; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+
+.contact-arrow { color: var(--text-dim); font-size: 0.8rem; flex-shrink: 0; }
+
+.about-footer {
+  text-align: center; margin-top: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; color: var(--text-dim);
+  letter-spacing: 0.1em; line-height: 1.8;
+}
+.about-footer span { color: var(--gold); }
+
+/* Copy toast */
+.copy-toast {
+  position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: #07090f;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+  padding: 0.5rem 1.25rem; border-radius: 100px;
+  font-weight: 700; letter-spacing: 0.1em;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+  z-index: 2000; white-space: nowrap;
+}
+.copy-toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ===== FLOATING ABOUT BUTTON ===== -->
+<button class="about-fab" onclick="openAbout()" title="À propos du développeur">i</button>
+
+<!-- ===== COPY TOAST ===== -->
+<div class="copy-toast" id="copy-toast">✓ Copié !</div>
+
+<!-- ===== ABOUT MODAL ===== -->
+<div class="about-overlay" id="about-overlay" onclick="closeAboutOutside(event)">
+  <div class="about-card">
+    <button class="about-close" onclick="closeAbout()">✕</button>
+
+    <div class="about-avatar">RB</div>
+    <div class="about-name">Ravelonantenaina Belardo</div>
+    <div class="about-role">💻 Informaticien</div>
+    <div class="about-institution">Onifra — Université FJKM Ravelojaona<br>Annex Mahajanga</div>
+
+    <div class="about-divider"></div>
+    <div class="about-section-label">— Contacts & Réseaux —</div>
+
+    <div class="about-contacts">
+
+      <div class="contact-row" onclick="copyText('+261376343225', 'Téléphone copié !')">
+        <div class="contact-icon" style="background:rgba(74,222,128,0.12);">📞</div>
+        <div class="contact-info">
+          <div class="contact-label">Téléphone</div>
+          <div class="contact-value">+261 37 634 3225</div>
+        </div>
+        <div class="contact-arrow">⎘</div>
+      </div>
+
+      <div class="contact-row" onclick="openLink('https://wa.me/261325058139')">
+        <div class="contact-icon" style="background:rgba(37,211,102,0.12);">💬</div>
+        <div class="contact-info">
+          <div class="contact-label">WhatsApp</div>
+          <div class="contact-value">+261 32 505 8139</div>
+        </div>
+        <div class="contact-arrow">↗</div>
+      </div>
+
+      <div class="contact-row" onclick="openLink('https://www.facebook.com/belha.rhavelo')">
+        <div class="contact-icon" style="background:rgba(24,119,242,0.12);">🌐</div>
+        <div class="contact-info">
+          <div class="contact-label">Facebook</div>
+          <div class="contact-value">belha Rhavelo</div>
+        </div>
+        <div class="contact-arrow">↗</div>
+      </div>
+
+    </div>
+
+    <div class="about-divider"></div>
+    <div class="about-footer">
+      Développé avec ❤️ par <span>Ravelonantenaina Belardo</span><br>
+      CodeQuest © 2025 · Onifra · Mahajanga
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 1: LANGUAGE CHOICE ===== -->
+<div id="screen-lang" class="screen active flex-screen">
+  <div class="lang-hero">
+    <div class="eyebrow">✦ Académie du Code ✦</div>
+    <div class="game-title">CodeQuest</div>
+    <div class="game-sub">Maîtrisez la programmation par l'épopée narrative</div>
+  </div>
+  <div class="lang-section-title">— Choisissez votre langage —</div>
+  <div class="lang-grid" id="lang-grid"></div>
+  <button class="lang-start-btn" id="lang-start-btn" onclick="goToTiers()">Commencer l'Aventure ✦</button>
+</div>
+
+<!-- ===== SCREEN 2: TIERS OVERVIEW ===== -->
+<div id="screen-tiers" class="screen">
+  <div class="tiers-title">Les 6 Paliers de la Maîtrise</div>
+  <div class="tiers-sub">Chaque palier franchi débloque un grade. De <em>Novice</em> à <em>Légende</em>.</div>
+  <div class="tiers-grid" id="tiers-grid"></div>
+  <button class="start-adventure-btn" onclick="startGame()">⚔ Entrer dans l'Académie</button>
+</div>
+
+<!-- ===== SCREEN 3: GAME ===== -->
+<div id="screen-game" class="screen">
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-lang" id="hud-lang">JS</div>
+    <div class="hud-tier" id="hud-tier">Novice</div>
+    <div class="hud-progress">
+      <div class="hud-bar-track"><div class="hud-bar-fill" id="hud-bar" style="width:0%"></div></div>
+    </div>
+    <div class="hud-score">Score: <span id="hud-score">0</span></div>
+    <div class="hud-lives" id="hud-lives"></div>
+  </div>
+
+  <!-- Tier banner -->
+  <div class="tier-banner" id="tier-banner">
+    <div class="tier-banner-icon" id="tb-icon"></div>
+    <div class="tier-banner-info">
+      <div class="tier-banner-name" id="tb-name"></div>
+      <div class="tier-banner-qs" id="tb-qs"></div>
+    </div>
+  </div>
+
+  <!-- Dynamic scene -->
+  <div id="scene-area"></div>
+
+  <!-- Tier unlock screen -->
+  <div class="tier-unlock" id="tier-unlock">
+    <div class="unlock-badge" id="ul-badge"></div>
+    <div class="unlock-title" id="ul-title"></div>
+    <div class="unlock-sub" id="ul-sub"></div>
+    <div class="unlock-chips" id="ul-chips"></div>
+    <button class="continue-btn" onclick="continueTier()">Palier Suivant →</button>
+  </div>
+
+</div>
+
+<!-- ===== SCREEN 4: END ===== -->
+<div id="screen-end" class="screen flex-screen">
+  <div class="end-trophy" id="end-trophy"></div>
+  <div class="end-rank" id="end-rank"></div>
+  <div class="end-score-line">Score final : <span id="end-score"></span></div>
+  <div class="end-grade" id="end-grade"></div>
+  <div class="end-stars" id="end-stars"></div>
+  <div class="end-tiers-done" id="end-tiers-done"></div>
+  <div class="end-msg" id="end-msg"></div>
+  <div>
+    <button class="end-restart" onclick="location.reload()">↺ Recommencer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+
+const LANGUAGES = [
+  { id:'js',     label:'JavaScript', icon:'🟨' },
+  { id:'python', label:'Python',     icon:'🐍' },
+  { id:'java',   label:'Java',       icon:'☕' },
+  { id:'ts',     label:'TypeScript', icon:'🔷' },
+  { id:'cpp',    label:'C++',        icon:'⚙️' },
+  { id:'c',      label:'C',          icon:'🔵' },
+  { id:'csharp', label:'C#',         icon:'🟣' },
+  { id:'rust',   label:'Rust',       icon:'🦀' },
+  { id:'go',     label:'Go',         icon:'🐹' },
+  { id:'kotlin', label:'Kotlin',     icon:'🟠' },
+  { id:'swift',  label:'Swift',      icon:'🍎' },
+  { id:'ruby',   label:'Ruby',       icon:'💎' },
+  { id:'php',    label:'PHP',        icon:'🐘' },
+  { id:'scala',  label:'Scala',      icon:'🔴' },
+  { id:'r',      label:'R',          icon:'📊' },
+  { id:'dart',   label:'Dart',       icon:'🎯' },
+  { id:'lua',    label:'Lua',        icon:'🌙' },
+  { id:'haskell',label:'Haskell',    icon:'λ' },
+  { id:'sql',    label:'SQL',        icon:'🗄️' },
+  { id:'bash',   label:'Bash',       icon:'🖥️' },
+];
+
+const TIERS = [
+  { id:1, name:'Novice',      emoji:'🌱', color:'#6b7280', bg:'rgba(107,114,128,0.08)', border:'rgba(107,114,128,0.3)',
+    desc:'Les bases absolues — variables, types, affichage.',
+    topics:['Variables','Types','Print/Log','Commentaires','Opérateurs de base'],
+    grade:'F→D', unlock:'Badge Initié' },
+  { id:2, name:'Apprenti',    emoji:'⚔️', color:'#34d399', bg:'rgba(52,211,153,0.07)', border:'rgba(52,211,153,0.25)',
+    desc:'Logique et structures de contrôle.',
+    topics:['if/else','switch','Opérateurs logiques','Ternaire','Null/undefined'],
+    grade:'D→C', unlock:'Badge Combattant' },
+  { id:3, name:'Mage',        emoji:'🔮', color:'#60a5fa', bg:'rgba(96,165,250,0.07)', border:'rgba(96,165,250,0.25)',
+    desc:'Itération, boucles et collections.',
+    topics:['for','while','do-while','Arrays','Strings'],
+    grade:'C→B', unlock:'Badge Mage' },
+  { id:4, name:'Maître',      emoji:'🏛️', color:'#c084fc', bg:'rgba(192,132,252,0.07)', border:'rgba(192,132,252,0.25)',
+    desc:'Fonctions, portée et organisation du code.',
+    topics:['Fonctions','Récursion','Closures','Scope','Callbacks'],
+    grade:'B→A', unlock:'Badge Maître' },
+  { id:5, name:'Archimage',   emoji:'👑', color:'#f0c040', bg:'rgba(240,192,64,0.07)', border:'rgba(240,192,64,0.3)',
+    desc:'Paradigmes avancés — POO, structures de données.',
+    topics:['Classes','Héritage','Interfaces','HashMap','Exceptions'],
+    grade:'A→S', unlock:'Badge Archimage' },
+  { id:6, name:'Légende',     emoji:'🌌', color:'#f97316', bg:'rgba(249,115,22,0.07)', border:'rgba(249,115,22,0.25)',
+    desc:'Concepts expert — asynchrone, patterns, performance.',
+    topics:['Async/Await','Promises','Design Patterns','Complexité','Mémoire'],
+    grade:'S→SS', unlock:'Badge Légende' },
+];
+
+/* ============================================================
+   QUESTIONS  (universal, adapted per language in renderScene)
+   ============================================================ */
+
+// Each question: { tier, concept, story, codeKey, hint, q, choices:[ {t,ok} ], ok_msg, fail_msg }
+// codeKey → looked up in CODES[lang][codeKey]
+
+const QUESTIONS = [
+  // ======== TIER 1 — NOVICE ========
+  {tier:1, concept:'Variables', story:`Vous entrez dans la <strong>Salle des Cristaux</strong>. Chaque cristal de lumière représente une <strong>variable</strong> — une boîte nommée qui stocke une valeur. Le Gardien déclare : <em>"Celui qui sait nommer ses cristaux maîtrise déjà la moitié de la magie."</em>`,
+   codeKey:'var_declare',
+   hint:{icon:'💡', text:'Une <strong>variable</strong> lie un nom à une valeur. On peut lire cette valeur plus tard ou la modifier.'},
+   q:'Quelle instruction crée une variable <code>age</code> contenant la valeur <code>25</code> ?',
+   choices:[{t:'<code>let age = 25</code>',ok:true},{t:'<code>age == 25</code>',ok:false},{t:'<code>25 = age</code>',ok:false},{t:'<code>var = 25 age</code>',ok:false}],
+   ok_msg:'Parfait ! `=` assigne une valeur. La variable stocke maintenant 25.', fail_msg:'On écrit toujours nom_variable = valeur. Le signe == compare, il n\'assigne pas.'},
+
+  {tier:1, concept:'Types de données', story:`L'Oracle des Types vous présente ses trois artefacts : <strong>le Nombre</strong> (42), <strong>le Texte</strong> ("sort") et <strong>le Booléen</strong> (vrai/faux). <em>"Chaque cristal a une nature — confondre les natures brise les sorts !"</em>`,
+   codeKey:'types_basic',
+   hint:{icon:'🏷️', text:'Les <strong>types primitifs</strong> principaux : <strong>number</strong> (entiers, flottants), <strong>string</strong> (texte entre guillemets), <strong>boolean</strong> (true/false).'},
+   q:'Quel est le type de la valeur <code>"Bonjour"</code> ?',
+   choices:[{t:'Number — c\'est un mot',ok:false},{t:'String — c\'est du texte entre guillemets',ok:true},{t:'Boolean — c\'est une réponse',ok:false},{t:'Array — c\'est une liste de lettres',ok:false}],
+   ok_msg:'Correct ! Tout texte entre guillemets simples, doubles ou backticks est un String.', fail_msg:'Les guillemets définissent une chaîne de texte (String), pas un nombre ni un booléen.'},
+
+  {tier:1, concept:'Affichage', story:`Dans l'Atelier des Messagères, les Mages impriment leurs résultats sur des parchemins lumineux. Sans cette compétence, impossible de voir ce que vos sorts ont produit !`,
+   codeKey:'print_hello',
+   hint:{icon:'📜', text:'La fonction d\'<strong>affichage</strong> permet de voir la valeur d\'une variable ou le résultat d\'un calcul pendant l\'exécution.'},
+   q:'Comment afficher le texte <code>"Bonjour Monde"</code> dans la console ?',
+   choices:[{t:'<code>print("Bonjour Monde")</code>',ok:false},{t:'<code>console.log("Bonjour Monde")</code>',ok:true},{t:'<code>display "Bonjour Monde"</code>',ok:false},{t:'<code>echo "Bonjour Monde"</code>',ok:false}],
+   ok_msg:'Bravo ! console.log() est la porte de sortie vers la console.', fail_msg:'En JavaScript, c\'est console.log(). D\'autres langages utilisent print() ou echo.'},
+
+  {tier:1, concept:'Opérateurs arithmétiques', story:`Le Maître Alchimiste enseigne les <strong>runes de calcul</strong>. Ces symboles permettent de transformer des cristaux-nombres en d'autres valeurs.`,
+   codeKey:'arithmetic',
+   hint:{icon:'🔢', text:'Les opérateurs arithmétiques : <strong>+</strong> addition, <strong>-</strong> soustraction, <strong>*</strong> multiplication, <strong>/</strong> division, <strong>%</strong> modulo (reste).'},
+   q:'Que vaut <code>17 % 5</code> ?',
+   choices:[{t:'3 — car 17 = 5×3 + 2… hm',ok:false},{t:'2 — car 17 = 5×3 + 2',ok:true},{t:'3.4 — car 17/5 = 3.4',ok:false},{t:'0 — car 5 divise 15',ok:false}],
+   ok_msg:'Excellent ! Le modulo % donne le reste de la division. 17 = 5×3 + 2, donc 17%5 = 2.', fail_msg:'Le % est le modulo : reste de la division entière. 17 ÷ 5 = 3 reste 2. Donc 17%5 = 2.'},
+
+  {tier:1, concept:'Commentaires', story:`Le Sage des Archives explique : <em>"Les <strong>commentaires</strong> sont des notes invisibles à la machine mais précieuses pour les humains. Ils expliquent le code sans l'exécuter."</em>`,
+   codeKey:'comments',
+   hint:{icon:'📝', text:'Les <strong>commentaires</strong> sont ignorés par l\'interpréteur. Ils documentent le code pour les développeurs qui le liront plus tard.'},
+   q:'Quelle ligne est un commentaire en JavaScript ?',
+   choices:[{t:'<code>// Ceci est un commentaire</code>',ok:true},{t:'<code># Ceci est un commentaire</code>',ok:false},{t:'<code>/* commentaire */</code> (multi-lignes uniquement)',ok:false},{t:'<code>-- commentaire</code>',ok:false}],
+   ok_msg:'Correct ! // pour une ligne, /* */ pour plusieurs lignes. Les deux sont valides en JS.', fail_msg:'En JavaScript, // démarre un commentaire sur une ligne. # est pour Python, -- pour SQL.'},
+
+  // ======== TIER 2 — APPRENTI ========
+  {tier:2, concept:'Conditions if/else', story:`Dans la <strong>Salle des Décisions</strong>, un Oracle vous barre la route. <em>"La magie ne s'éveille que dans certaines conditions. Si la condition est vraie, le premier sort agit. Sinon, l'autre prend le relais."</em>`,
+   codeKey:'if_else',
+   hint:{icon:'🔀', text:'<strong>if(condition)</strong> exécute un bloc si la condition est vraie. <strong>else</strong> s\'exécute si elle est fausse.'},
+   q:'Lyra a <code>mana = 15</code>. Quel bloc s\'exécute avec <code>if(mana > 20) {...} else {...}</code> ?',
+   choices:[{t:'Le bloc if — car 15 est positif',ok:false},{t:'Le bloc else — car 15 n\'est pas > 20',ok:true},{t:'Les deux blocs simultanément',ok:false},{t:'Aucun — la condition est invalide',ok:false}],
+   ok_msg:'Parfait ! 15 > 20 est faux, donc le bloc else s\'exécute.', fail_msg:'15 > 20 est FAUX. Quand la condition d\'un if est fausse, c\'est le else qui s\'exécute.'},
+
+  {tier:2, concept:'Opérateurs de comparaison', story:`La Chambre des Comparaisons abrite six runes magiques : plus grand, plus petit, égal, différent… <em>"Ne confonds jamais = (assignation) et == (comparaison) !"</em>`,
+   codeKey:'comparison_ops',
+   hint:{icon:'⚖️', text:'<strong>==</strong> égal (valeur), <strong>===</strong> strictement égal (valeur + type), <strong>!=</strong> différent, <strong>></strong> supérieur, <strong><</strong> inférieur, <strong>>=</strong> supérieur ou égal.'},
+   q:'Que vaut <code>"5" === 5</code> en JavaScript ?',
+   choices:[{t:'true — 5 et "5" ont la même valeur',ok:false},{t:'false — === compare aussi le type',ok:true},{t:'undefined — comparaison invalide',ok:false},{t:'NaN — pas un nombre',ok:false}],
+   ok_msg:'Bravo ! === vérifie valeur ET type. "5" est un String, 5 est un Number. Donc false.', fail_msg:'=== est la comparaison stricte : elle vérifie la valeur ET le type. String ≠ Number !'},
+
+  {tier:2, concept:'Opérateurs logiques', story:`Le Mage de la Logique enseigne les runes <strong>ET</strong>, <strong>OU</strong>, <strong>NON</strong>. <em>"Avec ces trois runes, vous pouvez construire toute condition possible !"</em>`,
+   codeKey:'logical_ops',
+   hint:{icon:'🧠', text:'<strong>&&</strong> (ET) : vrai si les deux sont vrais. <strong>||</strong> (OU) : vrai si au moins un est vrai. <strong>!</strong> (NON) : inverse le booléen.'},
+   q:'<code>true && false || true</code> — quelle est la valeur ?',
+   choices:[{t:'false — car true && false donne false',ok:false},{t:'true — && est évalué en premier, puis ||',ok:true},{t:'undefined — expression invalide',ok:false},{t:'true && false — pas de réduction',ok:false}],
+   ok_msg:'Excellent ! Priorité : && avant ||. (true && false) = false. Ensuite false || true = true.', fail_msg:'Les opérateurs ont une priorité : && est évalué avant ||. (true&&false)=false, puis false||true=true.'},
+
+  {tier:2, concept:'Switch/Case', story:`L'Auberge des Mille Chemins : selon votre classe de héros, une salle différente s'ouvre. Plutôt que d'enchaîner dix if/else, le <strong>switch</strong> distribue élégamment.`,
+   codeKey:'switch_case',
+   hint:{icon:'🗂️', text:'<strong>switch</strong> compare une valeur à plusieurs cas. Sans <strong>break</strong>, l\'exécution continue dans les cas suivants (fall-through).'},
+   q:'Dans un switch sans <code>break</code>, si le cas 2 correspond, que se passe-t-il ?',
+   choices:[{t:'Seul le cas 2 s\'exécute',ok:false},{t:'Les cas 2, 3, 4… s\'exécutent en cascade (fall-through)',ok:true},{t:'Le programme plante',ok:false},{t:'Le case default s\'exécute',ok:false}],
+   ok_msg:'Exact ! Sans break, le code "tombe" dans les cas suivants (fall-through). C\'est un piège classique !', fail_msg:'Sans break, le switch continue d\'exécuter les cas suivants. Ce comportement s\'appelle "fall-through".'},
+
+  {tier:2, concept:'Opérateur ternaire', story:`Le Forgeron des Sorts Compacts vous révèle une forme condensée du if/else, utilisée pour les décisions simples en une seule ligne.`,
+   codeKey:'ternary',
+   hint:{icon:'⚡', text:'Syntaxe ternaire : <strong>condition ? valeurSiVrai : valeurSiFaux</strong>. Pratique pour les assignations conditionnelles courtes.'},
+   q:'Que vaut <code>let r = (10 > 5) ? "grand" : "petit"</code> ?',
+   choices:[{t:'"petit" — 10 est un grand nombre',ok:false},{t:'"grand" — car 10 > 5 est vrai',ok:true},{t:'undefined — syntaxe invalide',ok:false},{t:'true — la condition est vraie',ok:false}],
+   ok_msg:'Parfait ! 10 > 5 est vrai, donc r = "grand". Le ternaire retourne la première valeur.', fail_msg:'condition ? A : B retourne A si condition est vraie, B sinon. 10>5 est vrai → "grand".'},
+
+  // ======== TIER 3 — MAGE ========
+  {tier:3, concept:'Boucle for', story:`Le Sage de l'Escalier vous défie : il faut allumer 100 bougies. <em>"Sans la boucle, ta vie entière n'y suffirait pas. Avec elle, une seule formule suffira."</em>`,
+   codeKey:'for_loop',
+   hint:{icon:'🔄', text:'Une boucle <strong>for</strong> a 3 parties : <strong>initialisation</strong>, <strong>condition</strong>, <strong>incrément</strong>. Elle répète le bloc tant que la condition est vraie.'},
+   q:'Combien de fois s\'exécute <code>for(let i=0; i<5; i++)</code> ?',
+   choices:[{t:'4 fois — i va de 0 à 4 exclu',ok:false},{t:'5 fois — i = 0,1,2,3,4',ok:true},{t:'6 fois — on compte le 0',ok:false},{t:'Infini — la condition est toujours vraie',ok:false}],
+   ok_msg:'Exact ! i démarre à 0, termine quand i=5 (exclu). Tours : i=0,1,2,3,4 → 5 fois.', fail_msg:'La condition est i<5. Quand i=5, la boucle s\'arrête. Les valeurs de i : 0,1,2,3,4 = 5 tours.'},
+
+  {tier:3, concept:'Boucle while', story:`Le Puits Magique se remplit tant qu'il est vide. <em>"La boucle while continue TANT QUE sa condition est vraie. Prends garde à l'infini !"</em>`,
+   codeKey:'while_loop',
+   hint:{icon:'♾️', text:'<strong>while(condition)</strong> répète le bloc tant que la condition est vraie. Si elle ne devient jamais fausse → boucle infinie !'},
+   q:'Que faut-il toujours inclure dans une boucle while pour éviter l\'infini ?',
+   choices:[{t:'Un return',ok:false},{t:'Une instruction qui modifie la condition vers false',ok:true},{t:'Un break obligatoire',ok:false},{t:'Un compteur initialisé à 0',ok:false}],
+   ok_msg:'Bravo ! La variable de condition doit changer à chaque tour, sinon boucle infinie !', fail_msg:'Il faut que la condition devienne fausse à un moment. Modifier la variable de la condition est essentiel.'},
+
+  {tier:3, concept:'Tableaux (Arrays)', story:`Le Dragon Syntaxius garde un grimoire de sorts indexés. <em>"Mes sorts sont numérotés depuis 0. Le premier sort est à l'index 0, le deuxième à l'index 1… souviens-toi toujours !"</em>`,
+   codeKey:'arrays',
+   hint:{icon:'📚', text:'Un <strong>tableau</strong> stocke plusieurs valeurs ordonnées. L\'index commence à <strong>0</strong>. <code>arr.length</code> donne la taille, <code>arr.push(x)</code> ajoute en fin.'},
+   q:'<code>let a = ["Feu","Glace","Vent"]</code>. Que vaut <code>a[1]</code> ?',
+   choices:[{t:'"Feu" — 1er élément',ok:false},{t:'"Glace" — index 1 = 2ème élément',ok:true},{t:'"Vent" — dernier élément',ok:false},{t:'undefined — index invalide',ok:false}],
+   ok_msg:'Exact ! Les index commencent à 0. a[0]="Feu", a[1]="Glace", a[2]="Vent".', fail_msg:'Attention : les tableaux commencent à l\'index 0 ! a[0]="Feu", a[1]="Glace".'},
+
+  {tier:3, concept:'Méthodes de tableaux', story:`La Bibliothécaire des Sorts vous enseigne les <strong>sorts de manipulation</strong> : ajouter, retirer, trouver, filtrer vos collections.`,
+   codeKey:'array_methods',
+   hint:{icon:'🔧', text:'<strong>push</strong> ajoute en fin, <strong>pop</strong> retire le dernier, <strong>shift</strong> retire le premier, <strong>unshift</strong> ajoute au début, <strong>slice</strong> extrait une portion.'},
+   q:'<code>let a=[1,2,3]; a.push(4); a.pop();</code> — que contient <code>a</code> ?',
+   choices:[{t:'[1,2,3,4] — push ajoute 4',ok:false},{t:'[1,2,3] — push ajoute 4, pop le retire',ok:true},{t:'[2,3] — pop retire aussi le premier',ok:false},{t:'[1,2,3,4,undefined]',ok:false}],
+   ok_msg:'Parfait ! push(4) → [1,2,3,4], puis pop() retire le dernier → [1,2,3]. Retour à l\'état initial !', fail_msg:'push ajoute en fin, pop retire en fin. push(4)=[1,2,3,4], puis pop() retire 4 → [1,2,3].'},
+
+  {tier:3, concept:'Chaînes de caractères', story:`La Tisseuse de Mots vous montre comment assembler, découper et transformer les textes — les <strong>strings</strong> sont la matière première des sorts verbaux.`,
+   codeKey:'strings',
+   hint:{icon:'🔤', text:'Méthodes utiles : <strong>.length</strong>, <strong>.toUpperCase()</strong>, <strong>.indexOf(x)</strong>, <strong>.slice(a,b)</strong>, <strong>.split(sep)</strong>, concaténation avec <strong>+</strong> ou template literals.'},
+   q:'<code>"CodeQuest".length</code> — quelle valeur ?',
+   choices:[{t:'8 — on ne compte pas le Q',ok:false},{t:'9 — CodeQuest a 9 caractères',ok:true},{t:'10 — avec l\'espace imaginaire',ok:false},{t:'undefined — length n\'est pas une méthode',ok:false}],
+   ok_msg:'Correct ! C-o-d-e-Q-u-e-s-t = 9 caractères. .length est une propriété, pas une méthode.', fail_msg:'Comptez : C(1)o(2)d(3)e(4)Q(5)u(6)e(7)s(8)t(9) = 9. .length donne le nombre de caractères.'},
+
+  // ======== TIER 4 — MAÎTRE ========
+  {tier:4, concept:'Fonctions', story:`Le Grand Alchimiste déroule son parchemin : <em>"Une <strong>fonction</strong> est un sort que tu définis une fois et invoques à volonté. Elle reçoit des ingrédients et retourne un résultat transformé."</em>`,
+   codeKey:'functions',
+   hint:{icon:'⚗️', text:'Une <strong>fonction</strong> encapsule du code réutilisable. <strong>Paramètres</strong> = entrées. <strong>return</strong> = sortie. Sans return, la fonction retourne <code>undefined</code>.'},
+   q:'Une fonction sans instruction <code>return</code> retourne quoi ?',
+   choices:[{t:'0 — valeur par défaut',ok:false},{t:'null — rien trouvé',ok:false},{t:'undefined — absence de valeur',ok:true},{t:'false — condition non remplie',ok:false}],
+   ok_msg:'Exact ! En JS/TS, une fonction sans return retourne implicitement undefined.', fail_msg:'Sans return explicite, JavaScript retourne automatiquement undefined (absence de valeur retournée).'},
+
+  {tier:4, concept:'Portée (Scope)', story:`La Bibliothèque Secrète a des pièces intérieures et extérieures. Les variables déclarées dans une pièce intérieure n'existent pas dehors — c'est la <strong>portée lexicale</strong>.`,
+   codeKey:'scope',
+   hint:{icon:'🏰', text:'<strong>Scope global</strong> : accessible partout. <strong>Scope local</strong> (dans une fonction) : inaccessible de l\'extérieur. <code>let</code>/<code>const</code> ont un scope de bloc <code>{}</code>.'},
+   q:'Que se passe-t-il si on accède à une variable <code>let</code> déclarée dans une fonction, de l\'extérieur ?',
+   choices:[{t:'On obtient undefined',ok:false},{t:'On obtient null',ok:false},{t:'Une erreur ReferenceError',ok:true},{t:'La variable est accessible normalement',ok:false}],
+   ok_msg:'Exactement ! les variables let/const sont limitées à leur bloc. Accéder de l\'extérieur lève une ReferenceError.', fail_msg:'Les variables locales n\'existent pas hors de leur scope. Tenter d\'y accéder lève une ReferenceError.'},
+
+  {tier:4, concept:'Récursion', story:`La Tour Infinie : pour calculer la hauteur totale, le Géomètre dit <em>"la hauteur est 1 + la hauteur des étages restants"</em> — et ainsi de suite. C'est la <strong>récursion</strong> : une fonction qui s'appelle elle-même.`,
+   codeKey:'recursion',
+   hint:{icon:'🌀', text:'Une fonction <strong>récursive</strong> s\'appelle elle-même. Elle doit avoir un <strong>cas de base</strong> (condition d\'arrêt) pour éviter l\'infini.'},
+   q:'Dans <code>function fact(n){ return n<=1 ? 1 : n * fact(n-1) }</code>, quel est le cas de base ?',
+   choices:[{t:'n * fact(n-1) — la multiplication',ok:false},{t:'n <= 1 → retourne 1',ok:true},{t:'fact(n-1) — l\'appel récursif',ok:false},{t:'Il n\'y a pas de cas de base',ok:false}],
+   ok_msg:'Parfait ! n<=1 est le cas de base qui arrête la récursion. Sans lui, boucle infinie !', fail_msg:'Le cas de base est la condition qui arrête la récursion. Ici n<=1 retourne 1 sans rappel récursif.'},
+
+  {tier:4, concept:'Fonctions d\'ordre supérieur', story:`Les Architectes du Code révèlent que les fonctions peuvent être passées comme arguments — des <strong>fonctions d'ordre supérieur</strong>. La méthode <code>map</code> en est l'exemple parfait.`,
+   codeKey:'higher_order',
+   hint:{icon:'🎭', text:'<strong>map</strong>, <strong>filter</strong>, <strong>reduce</strong> acceptent une fonction callback. <strong>map</strong> transforme chaque élément, <strong>filter</strong> garde ceux qui passent le test, <strong>reduce</strong> agrège.'},
+   q:'<code>[1,2,3].map(x => x * 2)</code> — que retourne cette expression ?',
+   choices:[{t:'6 — la somme multipliée',ok:false},{t:'[2,4,6] — chaque élément doublé',ok:true},{t:'[1,2,3] — map ne modifie pas',ok:false},{t:'undefined — map retourne rien',ok:false}],
+   ok_msg:'Excellent ! map applique la fonction à chaque élément et retourne un NOUVEAU tableau [2,4,6].', fail_msg:'map transforme chaque élément et retourne un nouveau tableau. 1×2=2, 2×2=4, 3×2=6 → [2,4,6].'},
+
+  {tier:4, concept:'Closures', story:`La Chambre des Secrets Persistants : une fonction peut "mémoriser" les variables de son environnement de création, même après que cet environnement ait disparu. C'est une <strong>closure</strong>.`,
+   codeKey:'closures',
+   hint:{icon:'🔒', text:'Une <strong>closure</strong> est une fonction qui capture les variables de son scope parent, même après que la fonction parent ait terminé son exécution.'},
+   q:'Que retourne <code>compteur()</code> si la closure incrémente une variable interne à chaque appel ?',
+   choices:[{t:'Toujours 1 — la variable se réinitialise',ok:false},{t:'1, puis 2, puis 3… — la closure mémorise',ok:true},{t:'undefined — la variable est hors scope',ok:false},{t:'NaN — pas de valeur initiale',ok:false}],
+   ok_msg:'Bravo ! La closure garde la variable en vie entre les appels. Chaque appel voit l\'état précédent.', fail_msg:'La closure préserve la variable interne. Elle n\'est pas réinitialisée — elle persiste entre les appels.'},
+
+  // ======== TIER 5 — ARCHIMAGE ========
+  {tier:5, concept:'Classes & POO', story:`La Forteresse des Archétypes : chaque héros est une <strong>instance</strong> d'une <strong>classe</strong>. La classe est le plan, l'instance est l'objet réel. <em>"Créez le moule, puis coulez autant d'héros que vous voulez."</em>`,
+   codeKey:'classes',
+   hint:{icon:'🏗️', text:'Une <strong>classe</strong> est un modèle. Le <strong>constructeur</strong> initialise les propriétés. Les <strong>méthodes</strong> définissent les comportements. <strong>new</strong> crée une instance.'},
+   q:'Comment crée-t-on une instance de la classe <code>Héros</code> ?',
+   choices:[{t:'<code>Héros.create()</code>',ok:false},{t:'<code>new Héros()</code>',ok:true},{t:'<code>Héros()</code> — appel direct',ok:false},{t:'<code>instance Héros</code>',ok:false}],
+   ok_msg:'Correct ! Le mot-clé new appelle le constructeur et crée une nouvelle instance.', fail_msg:'On utilise new ClassName() pour instancier une classe. Le constructeur est alors appelé automatiquement.'},
+
+  {tier:5, concept:'Héritage', story:`La Lignée des Champions : un <strong>Paladin</strong> hérite des pouvoirs d'un <strong>Guerrier</strong>, qui hérite d'un <strong>Héros</strong>. L'héritage évite de réécrire du code commun.`,
+   codeKey:'inheritance',
+   hint:{icon:'🧬', text:'<strong>extends</strong> crée une sous-classe. <strong>super()</strong> appelle le constructeur parent. La sous-classe hérite de toutes les méthodes publiques du parent.'},
+   q:'Dans <code>class Paladin extends Guerrier</code>, que fait <code>super(nom)</code> dans le constructeur ?',
+   choices:[{t:'Crée un guerrier séparé',ok:false},{t:'Appelle le constructeur de Guerrier pour initialiser la partie héritée',ok:true},{t:'Appelle la méthode super() de la classe Paladin',ok:false},{t:'Duplique toutes les méthodes',ok:false}],
+   ok_msg:'Exact ! super() appelle le constructeur parent, initialisant les propriétés héritées. Obligatoire avant this.', fail_msg:'super() invoque le constructeur de la classe parente. Sans lui, le contexte this n\'est pas initialisé.'},
+
+  {tier:5, concept:'Gestion d\'exceptions', story:`Le Pont des Épreuves peut s'effondrer. Un Mage prévoyant encapsule ses actions risquées dans un <strong>try/catch</strong> — si quelque chose s'effondre, il rattrape le problème avec grâce.`,
+   codeKey:'exceptions',
+   hint:{icon:'🛡️', text:'<strong>try</strong> : code qui peut échouer. <strong>catch(e)</strong> : que faire si une erreur survient. <strong>finally</strong> : toujours exécuté, erreur ou non.'},
+   q:'Le bloc <code>finally</code> s\'exécute…',
+   choices:[{t:'Seulement si une erreur survient',ok:false},{t:'Seulement si tout se passe bien',ok:false},{t:'Toujours, erreur ou non',ok:true},{t:'Jamais si return est appelé dans try',ok:false}],
+   ok_msg:'Parfait ! finally est garanti. C\'est l\'endroit idéal pour libérer des ressources (fermer un fichier, etc.).', fail_msg:'finally s\'exécute dans tous les cas — avec ou sans erreur. C\'est sa raison d\'être.'},
+
+  {tier:5, concept:'Structures de données', story:`La Grande Bibliothèque cache une salle secrète : les <strong>Maps</strong> et les <strong>Sets</strong>. Plus puissants que les simples tableaux pour certains usages.`,
+   codeKey:'maps_sets',
+   hint:{icon:'🗃️', text:'<strong>Map</strong> : clés de n\'importe quel type (vs objet: clés string). <strong>Set</strong> : collection de valeurs <strong>uniques</strong>. Très utile pour dédoublonner.'},
+   q:'<code>new Set([1,2,2,3,3,3])</code> — combien d\'éléments contient ce Set ?',
+   choices:[{t:'6 — tous les éléments',ok:false},{t:'3 — les doublons sont supprimés',ok:true},{t:'1 — seul le dernier reste',ok:false},{t:'undefined — syntaxe invalide',ok:false}],
+   ok_msg:'Bravo ! Un Set ne garde que les valeurs uniques. {1,2,3} → 3 éléments.', fail_msg:'Un Set élimine les doublons automatiquement. [1,2,2,3,3,3] → {1,2,3} → 3 éléments uniques.'},
+
+  {tier:5, concept:'Interfaces & Types', story:`Le Parchemin des Contrats : une <strong>interface</strong> définit la forme que doit respecter un objet. Si l'objet ne respecte pas le contrat, le compilateur sonne l'alarme.`,
+   codeKey:'interfaces',
+   hint:{icon:'📋', text:'Une <strong>interface</strong> (TypeScript) définit les propriétés et méthodes requises. Elle ne contient pas d\'implémentation — juste le contrat.'},
+   q:'Une interface TypeScript peut-elle contenir du code d\'implémentation ?',
+   choices:[{t:'Oui, toujours',ok:false},{t:'Oui, avec le mot-clé default',ok:false},{t:'Non — elle définit un contrat, pas une implémentation',ok:true},{t:'Oui, dans les méthodes statiques',ok:false}],
+   ok_msg:'Correct ! Une interface TS est un contrat pur. Pour l\'implémentation, utilisez les classes ou types abstraits.', fail_msg:'Les interfaces définissent la forme (contrat) sans implémentation. C\'est leur rôle exclusif.'},
+
+  // ======== TIER 6 — LÉGENDE ========
+  {tier:6, concept:'Async/Await', story:`Le Portail du Temps : certaines opérations (réseau, fichiers) prennent du temps. <em>"Le code asynchrone permet de faire autre chose en attendant — ne pas bloquer le fil d'exécution."</em>`,
+   codeKey:'async_await',
+   hint:{icon:'⏳', text:'<strong>async</strong> marque une fonction asynchrone. <strong>await</strong> suspend l\'exécution jusqu\'à la résolution d\'une Promise. Utilisez try/catch pour gérer les erreurs async.'},
+   q:'Que retourne une fonction déclarée <code>async</code> même si elle retourne une valeur simple ?',
+   choices:[{t:'La valeur directement',ok:false},{t:'Une Promise résolue avec cette valeur',ok:true},{t:'undefined — async n\'a pas de return',ok:false},{t:'Un Observable',ok:false}],
+   ok_msg:'Exact ! async enveloppe automatiquement le retour dans une Promise. Toujours.', fail_msg:'Une fonction async retourne TOUJOURS une Promise. Même `async function f(){ return 42 }` retourne Promise<42>.'},
+
+  {tier:6, concept:'Promises', story:`Le Contrat du Futur : une <strong>Promise</strong> représente une valeur qui n'est pas encore disponible. Elle peut être en attente, résolue (succès) ou rejetée (échec).`,
+   codeKey:'promises',
+   hint:{icon:'🤝', text:'Une Promise a 3 états : <strong>pending</strong>, <strong>fulfilled</strong>, <strong>rejected</strong>. <strong>.then()</strong> gère le succès, <strong>.catch()</strong> les erreurs, <strong>.finally()</strong> toujours.'},
+   q:'Quelle méthode exécute du code après une Promise, qu\'elle réussisse ou échoue ?',
+   choices:[{t:'.then()',ok:false},{t:'.catch()',ok:false},{t:'.finally()',ok:true},{t:'.always()',ok:false}],
+   ok_msg:'Parfait ! .finally() est l\'équivalent du bloc finally pour les Promises — garanti dans tous les cas.', fail_msg:'.finally() s\'exécute après la résolution ou le rejet. .then() = succès, .catch() = erreur seulement.'},
+
+  {tier:6, concept:'Design Patterns', story:`La Salle des Architectures Secrètes : les grands Maîtres ont codifié des <strong>patterns</strong> — solutions éprouvées aux problèmes récurrents. Le <strong>Singleton</strong>, l'<strong>Observer</strong>, le <strong>Factory</strong>…`,
+   codeKey:'design_patterns',
+   hint:{icon:'🏛️', text:'<strong>Singleton</strong> : une seule instance. <strong>Observer</strong> : abonnement aux changements. <strong>Factory</strong> : création déléguée. <strong>Strategy</strong> : algorithme interchangeable.'},
+   q:'Le pattern <strong>Observer</strong> est utilisé quand…',
+   choices:[{t:'On veut garantir une seule instance',ok:false},{t:'Plusieurs objets doivent réagir aux changements d\'un autre',ok:true},{t:'On veut déléguer la création d\'objets',ok:false},{t:'On veut changer d\'algorithme dynamiquement',ok:false}],
+   ok_msg:'Bravo ! Observer (ou Publisher/Subscriber) : des objets s\'abonnent à des événements d\'une source.', fail_msg:'Observer : des "abonnés" sont notifiés quand un "sujet" change. Singleton = 1 instance. Factory = création.'},
+
+  {tier:6, concept:'Complexité algorithmique', story:`La Tour des Calculs Infinis : un mauvais algorithme peut prendre des siècles. La <strong>notation Big-O</strong> mesure comment le temps d'exécution croît avec la taille des données.`,
+   codeKey:'big_o',
+   hint:{icon:'📈', text:'<strong>O(1)</strong> : constant. <strong>O(n)</strong> : linéaire. <strong>O(n²)</strong> : quadratique (2 boucles imbriquées). <strong>O(log n)</strong> : logarithmique (recherche binaire).'},
+   q:'Deux boucles <code>for</code> imbriquées sur un tableau de taille n — quelle complexité ?',
+   choices:[{t:'O(n) — deux boucles linéaires',ok:false},{t:'O(2n) — deux fois n',ok:false},{t:'O(n²) — chaque élément × chaque élément',ok:true},{t:'O(log n) — division répétée',ok:false}],
+   ok_msg:'Exact ! Deux boucles imbriquées : pour chaque n élément on fait n opérations → n×n = O(n²).', fail_msg:'Deux boucles imbriquées signifient n×n opérations → O(n²). Évitez quand possible !'},
+
+  {tier:6, concept:'Gestion mémoire', story:`Les Profondeurs du Donjon Mémoire : chaque objet créé occupe de l'espace. Un programme mal géré épuise la mémoire — c'est le redouté <strong>memory leak</strong>.`,
+   codeKey:'memory',
+   hint:{icon:'🧮', text:'<strong>Stack</strong> : valeurs primitives, appels de fonctions. <strong>Heap</strong> : objets, fonctions. Le <strong>Garbage Collector</strong> libère automatiquement la mémoire non référencée.'},
+   q:'Qu\'est-ce qu\'un "memory leak" ?',
+   choices:[{t:'Une erreur qui vide la pile d\'appels',ok:false},{t:'De la mémoire allouée qui n\'est plus libérée alors qu\'elle n\'est plus nécessaire',ok:true},{t:'Une variable initialisée à null',ok:false},{t:'Une boucle infinie qui consomme du CPU',ok:false}],
+   ok_msg:'Parfait ! Un memory leak : des objets restent en mémoire alors qu\'ils ne sont plus utilisés ni libérés.', fail_msg:'Memory leak = mémoire qui devrait être libérée mais ne l\'est pas. Elle s\'accumule jusqu\'au crash.'},
+];
+
+/* ============================================================
+   CODE SNIPPETS (per language, adapted)
+   ============================================================ */
+function getCode(lang, key) {
+  const L = {
+    js: {
+      var_declare: `<span class="kw">let</span> <span class="vr">nom</span> = <span class="str">"Lyra"</span>;\n<span class="kw">let</span> <span class="vr">age</span> = <span class="num">25</span>;\n<span class="kw">const</span> <span class="vr">PI</span> = <span class="num">3.14</span>; <span class="cmt">// constante</span>`,
+      types_basic: `<span class="kw">let</span> <span class="vr">texte</span> = <span class="str">"Bonjour"</span>;   <span class="cmt">// String</span>\n<span class="kw">let</span> <span class="vr">nombre</span> = <span class="num">42</span>;      <span class="cmt">// Number</span>\n<span class="kw">let</span> <span class="vr">actif</span> = <span class="kw">true</span>;     <span class="cmt">// Boolean</span>`,
+      print_hello: `<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Bonjour Monde"</span>);\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">42</span>);\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">nom</span> + <span class="str">" est prêt"</span>);`,
+      arithmetic: `<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">10</span> <span class="op">+</span> <span class="num">3</span>);  <span class="cmt">// 13</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">10</span> <span class="op">*</span> <span class="num">3</span>);  <span class="cmt">// 30</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">17</span> <span class="op">%</span> <span class="num">5</span>);  <span class="cmt">// ?</span>`,
+      comments: `<span class="cmt">// Commentaire sur une ligne</span>\n\n<span class="cmt">/* Commentaire\n   multi-lignes */</span>\n\n<span class="kw">let</span> <span class="vr">x</span> = <span class="num">5</span>; <span class="cmt">// inline</span>`,
+      if_else: `<span class="kw">let</span> <span class="vr">mana</span> = <span class="num">15</span>;\n<span class="kw">if</span> (<span class="vr">mana</span> <span class="op">></span> <span class="num">20</span>) {\n  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Boule de feu!"</span>);\n} <span class="kw">else</span> {\n  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Pas assez de mana"</span>);\n}`,
+      comparison_ops: `<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">5</span> <span class="op">==</span> <span class="str">"5"</span>);  <span class="cmt">// true (valeur)</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">5</span> <span class="op">===</span> <span class="str">"5"</span>); <span class="cmt">// false (valeur+type)</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">5</span> <span class="op">!==</span> <span class="str">"5"</span>); <span class="cmt">// true</span>`,
+      logical_ops: `<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">true</span> <span class="op">&&</span> <span class="kw">false</span>);  <span class="cmt">// false</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">true</span> <span class="op">||</span> <span class="kw">false</span>);  <span class="cmt">// true</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="op">!</span><span class="kw">true</span>);          <span class="cmt">// false</span>`,
+      switch_case: `<span class="kw">switch</span>(<span class="vr">classe</span>) {\n  <span class="kw">case</span> <span class="str">"guerrier"</span>: <span class="fn">attaquer</span>(); <span class="kw">break</span>;\n  <span class="kw">case</span> <span class="str">"mage"</span>:     <span class="fn">lancer</span>();   <span class="kw">break</span>;\n  <span class="kw">default</span>:        <span class="fn">fuir</span>();\n}`,
+      ternary: `<span class="kw">let</span> <span class="vr">r</span> = (<span class="num">10</span> <span class="op">></span> <span class="num">5</span>) <span class="op">?</span> <span class="str">"grand"</span> <span class="op">:</span> <span class="str">"petit"</span>;\n<span class="cmt">// condition ? siVrai : siFaux</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">r</span>); <span class="cmt">// ?</span>`,
+      for_loop: `<span class="kw">for</span> (<span class="kw">let</span> <span class="vr">i</span> = <span class="num">0</span>; <span class="vr">i</span> <span class="op"><</span> <span class="num">5</span>; <span class="vr">i</span>++) {\n  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Tour "</span> <span class="op">+</span> <span class="vr">i</span>);\n}\n<span class="cmt">// i = 0, 1, 2, 3, 4 → ?</span>`,
+      while_loop: `<span class="kw">let</span> <span class="vr">eau</span> = <span class="num">0</span>;\n<span class="kw">while</span> (<span class="vr">eau</span> <span class="op"><</span> <span class="num">5</span>) {\n  <span class="vr">eau</span>++; <span class="cmt">// ← ESSENTIEL</span>\n}\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">eau</span>); <span class="cmt">// 5</span>`,
+      arrays: `<span class="kw">let</span> <span class="vr">sorts</span> = [<span class="str">"Feu"</span>, <span class="str">"Glace"</span>, <span class="str">"Vent"</span>];\n<span class="cmt">// index :    0        1        2</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">sorts</span>[<span class="num">0</span>]); <span class="cmt">// "Feu"</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">sorts</span>[<span class="num">1</span>]); <span class="cmt">// ?</span>`,
+      array_methods: `<span class="kw">let</span> <span class="vr">a</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];\n<span class="vr">a</span>.<span class="fn">push</span>(<span class="num">4</span>);  <span class="cmt">// [1,2,3,4]</span>\n<span class="vr">a</span>.<span class="fn">pop</span>();    <span class="cmt">// retire le dernier</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">a</span>); <span class="cmt">// ?</span>`,
+      strings: `<span class="kw">let</span> <span class="vr">s</span> = <span class="str">"CodeQuest"</span>;\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>.<span class="vr">length</span>);      <span class="cmt">// ?</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>.<span class="fn">toUpperCase</span>()); <span class="cmt">// "CODEQUEST"</span>\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>.<span class="fn">slice</span>(<span class="num">0</span>,<span class="num">4</span>));    <span class="cmt">// "Code"</span>`,
+      functions: `<span class="kw">function</span> <span class="fn">saluer</span>(<span class="vr">nom</span>) {\n  <span class="kw">return</span> <span class="str">"Bonjour "</span> <span class="op">+</span> <span class="vr">nom</span>;\n}\n\n<span class="kw">function</span> <span class="fn">sanReturn</span>() {\n  <span class="kw">let</span> <span class="vr">x</span> = <span class="num">5</span>; <span class="cmt">// pas de return</span>\n}\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">sanReturn</span>()); <span class="cmt">// ?</span>`,
+      scope: `<span class="kw">let</span> <span class="vr">global</span> = <span class="str">"accessible partout"</span>;\n\n<span class="kw">function</span> <span class="fn">maFn</span>() {\n  <span class="kw">let</span> <span class="vr">local</span> = <span class="str">"seulement ici"</span>;\n}\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">local</span>); <span class="cmt">// ?</span>`,
+      recursion: `<span class="kw">function</span> <span class="fn">fact</span>(<span class="vr">n</span>) {\n  <span class="kw">if</span> (<span class="vr">n</span> <span class="op"><=</span> <span class="num">1</span>) <span class="kw">return</span> <span class="num">1</span>; <span class="cmt">// cas de base</span>\n  <span class="kw">return</span> <span class="vr">n</span> <span class="op">*</span> <span class="fn">fact</span>(<span class="vr">n</span> <span class="op">-</span> <span class="num">1</span>);\n}\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">fact</span>(<span class="num">5</span>)); <span class="cmt">// 120</span>`,
+      higher_order: `<span class="kw">const</span> <span class="vr">doubled</span> = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="fn">map</span>(<span class="vr">x</span> <span class="op">=></span> <span class="vr">x</span> <span class="op">*</span> <span class="num">2</span>);\n<span class="kw">const</span> <span class="vr">evens</span> = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>].<span class="fn">filter</span>(<span class="vr">x</span> <span class="op">=></span> <span class="vr">x</span> <span class="op">%</span> <span class="num">2</span> <span class="op">===</span> <span class="num">0</span>);\n<span class="cmt">// doubled = ? evens = [2,4]</span>`,
+      closures: `<span class="kw">function</span> <span class="fn">creerCompteur</span>() {\n  <span class="kw">let</span> <span class="vr">count</span> = <span class="num">0</span>;\n  <span class="kw">return</span> () <span class="op">=></span> ++<span class="vr">count</span>;\n}\n<span class="kw">const</span> <span class="vr">cpt</span> = <span class="fn">creerCompteur</span>();\n<span class="fn">cpt</span>(); <span class="cmt">// 1</span>\n<span class="fn">cpt</span>(); <span class="cmt">// 2 — mémorisé!</span>`,
+      classes: `<span class="kw">class</span> <span class="ty">Héros</span> {\n  <span class="fn">constructor</span>(<span class="vr">nom</span>) {\n    <span class="kw">this</span>.<span class="vr">nom</span> = <span class="vr">nom</span>;\n  }\n  <span class="fn">saluer</span>() { <span class="kw">return</span> <span class="str">\`Je suis \${<span class="kw">this</span>.<span class="vr">nom</span>}\`</span>; }\n}\n<span class="kw">const</span> <span class="vr">h</span> = <span class="kw">new</span> <span class="ty">Héros</span>(<span class="str">"Lyra"</span>);`,
+      inheritance: `<span class="kw">class</span> <span class="ty">Paladin</span> <span class="kw">extends</span> <span class="ty">Guerrier</span> {\n  <span class="fn">constructor</span>(<span class="vr">nom</span>) {\n    <span class="kw">super</span>(<span class="vr">nom</span>); <span class="cmt">// appelle Guerrier</span>\n    <span class="kw">this</span>.<span class="vr">foi</span> = <span class="num">100</span>;\n  }\n}`,
+      exceptions: `<span class="kw">try</span> {\n  <span class="fn">risque</span>();\n} <span class="kw">catch</span>(<span class="vr">e</span>) {\n  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Erreur:"</span>, <span class="vr">e</span>.<span class="vr">message</span>);\n} <span class="kw">finally</span> {\n  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Toujours exécuté"</span>);\n}`,
+      maps_sets: `<span class="kw">const</span> <span class="vr">s</span> = <span class="kw">new</span> <span class="ty">Set</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">3</span>,<span class="num">3</span>]);\n<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>.<span class="vr">size</span>); <span class="cmt">// ?</span>\n\n<span class="kw">const</span> <span class="vr">m</span> = <span class="kw">new</span> <span class="ty">Map</span>();\n<span class="vr">m</span>.<span class="fn">set</span>(<span class="str">"clé"</span>, <span class="str">"valeur"</span>);`,
+      interfaces: `<span class="cmt">// TypeScript</span>\n<span class="kw">interface</span> <span class="ty">Héros</span> {\n  nom: <span class="ty">string</span>;\n  niveau: <span class="ty">number</span>;\n  attaquer(): <span class="ty">void</span>;\n}\n<span class="cmt">// Contrat sans implémentation</span>`,
+      async_await: `<span class="kw">async function</span> <span class="fn">fetchDonnées</span>() {\n  <span class="kw">const</span> <span class="vr">res</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/api"</span>);\n  <span class="kw">const</span> <span class="vr">data</span> = <span class="kw">await</span> <span class="vr">res</span>.<span class="fn">json</span>();\n  <span class="kw">return</span> <span class="vr">data</span>; <span class="cmt">// Promise<data></span>\n}`,
+      promises: `<span class="fn">fetch</span>(<span class="str">"/api"</span>)\n  .<span class="fn">then</span>(<span class="vr">res</span> <span class="op">=></span> <span class="vr">res</span>.<span class="fn">json</span>())\n  .<span class="fn">then</span>(<span class="vr">data</span> <span class="op">=></span> <span class="fn">traiter</span>(<span class="vr">data</span>))\n  .<span class="fn">catch</span>(<span class="vr">err</span> <span class="op">=></span> <span class="fn">gérerErreur</span>(<span class="vr">err</span>))\n  .<span class="fn">finally</span>(() <span class="op">=></span> <span class="fn">nettoyer</span>());`,
+      design_patterns: `<span class="cmt">// Singleton</span>\n<span class="kw">class</span> <span class="ty">Config</span> {\n  <span class="kw">static</span> <span class="vr">#instance</span>;\n  <span class="kw">static</span> <span class="fn">getInstance</span>() {\n    <span class="kw">if</span>(!<span class="ty">Config</span>.<span class="vr">#instance</span>)\n      <span class="ty">Config</span>.<span class="vr">#instance</span>=<span class="kw">new</span> <span class="ty">Config</span>();\n    <span class="kw">return</span> <span class="ty">Config</span>.<span class="vr">#instance</span>;\n  }\n}`,
+      big_o: `<span class="cmt">// O(n²) — boucles imbriquées</span>\n<span class="kw">for</span>(<span class="kw">let</span> <span class="vr">i</span>=<span class="num">0</span>; <span class="vr">i</span><span class="op"><</span><span class="vr">n</span>; <span class="vr">i</span>++) {\n  <span class="kw">for</span>(<span class="kw">let</span> <span class="vr">j</span>=<span class="num">0</span>; <span class="vr">j</span><span class="op"><</span><span class="vr">n</span>; <span class="vr">j</span>++) {\n    <span class="fn">traiter</span>(<span class="vr">i</span>, <span class="vr">j</span>); <span class="cmt">// n×n fois</span>\n  }\n}`,
+      memory: `<span class="cmt">// Memory leak classique</span>\n<span class="kw">let</span> <span class="vr">cache</span> = [];\n<span class="kw">function</span> <span class="fn">ajouter</span>(<span class="vr">data</span>) {\n  <span class="vr">cache</span>.<span class="fn">push</span>(<span class="vr">data</span>); <span class="cmt">// jamais nettoyé</span>\n}\n<span class="cmt">// cache grandit indéfiniment !</span>`,
+    }
+  };
+  // For other languages, fall back to JS with lang-specific syntax note
+  const langData = L[lang] || L['js'];
+  return langData[key] || L['js'][key] || '<span class="cmt">// Voir concept dans votre langage</span>';
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let selectedLang = null;
+let currentQ = 0;
+let score = 0;
+let lives = 3;
+let answered = false;
+const MAX_LIVES = 3;
+
+/* ============================================================
+   INIT LANGUAGE GRID
+   ============================================================ */
+function initLangGrid() {
+  const grid = document.getElementById('lang-grid');
+  grid.innerHTML = LANGUAGES.map(l => `
+    <button class="lang-btn" onclick="selectLang('${l.id}', this)">
+      <span class="lang-icon">${l.icon}</span>
+      <span>${l.label}</span>
+    </button>
+  `).join('');
+}
+
+function selectLang(id, el) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedLang = id;
+  document.getElementById('lang-start-btn').classList.add('ready');
+}
+
+function goToTiers() {
+  if (!selectedLang) return;
+  setScreen('tiers');
+  initTiersGrid();
+}
+
+function initTiersGrid() {
+  const grid = document.getElementById('tiers-grid');
+  grid.innerHTML = TIERS.map(t => `
+    <div class="tier-card" data-tier="${t.id}" style="border-color:${t.border}; background:${t.bg}">
+      <div class="tier-emoji">${t.emoji}</div>
+      <div class="tier-name">${t.id}. ${t.name}</div>
+      <div class="tier-desc">${t.desc}</div>
+      <div class="tier-topics">${t.topics.map(tp => `<span class="tier-topic">${tp}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+function startGame() {
+  setScreen('game');
+  currentQ = 0; score = 0; lives = MAX_LIVES; answered = false;
+  updateHUD();
+  renderScene();
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderScene() {
+  document.getElementById('tier-unlock').classList.remove('show');
+  document.getElementById('tier-unlock').style.display = 'none';
+
+  const q = QUESTIONS[currentQ];
+  const tier = TIERS.find(t => t.id === q.tier);
+  const langObj = LANGUAGES.find(l => l.id === selectedLang) || LANGUAGES[0];
+
+  // Tier banner
+  const tb = document.getElementById('tier-banner');
+  tb.style.background = tier.bg;
+  tb.style.borderColor = tier.border;
+  document.getElementById('tb-icon').textContent = tier.emoji;
+  document.getElementById('tb-name').innerHTML = `<span style="color:${tier.color}">${tier.name}</span> — ${tier.topics[Math.min(currentQ%5, tier.topics.length-1)]}`;
+  document.getElementById('tb-qs').textContent = `Question ${currentQ+1} / ${QUESTIONS.length}`;
+
+  // Code
+  const codeHTML = getCode(selectedLang, q.codeKey);
+  const langName = langObj.label;
+
+  const area = document.getElementById('scene-area');
+  area.innerHTML = `
+    <div class="scene-wrap">
+      <div class="concept-pill"><span class="pill-dot"></span>${q.concept}</div>
+      <div class="scene-card">
+        <div class="scene-title">${q.story.match(/<strong>(.*?)<\/strong>/)?.[0].replace(/<\/?strong>/g,'') || q.concept}</div>
+        <div class="scene-text">${q.story}</div>
+        <div class="code-wrap">
+          <div class="code-header">
+            <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+            <div class="code-lang-tag">${langName}</div>
+          </div>
+          <div class="code-body">${codeHTML}</div>
+        </div>
+        <div class="hint-box">
+          <span class="hint-ico">${q.hint.icon}</span>
+          <span class="hint-txt">${q.hint.text}</span>
+        </div>
+      </div>
+
+      <div class="quiz-label">— Question —</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="choices" id="choices">
+        ${q.choices.map((c,i) => `
+          <button class="choice" onclick="choose(${i})" id="c${i}">
+            <span class="choice-key">${['A','B','C','D'][i]}.</span>
+            <span>${c.t}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback" id="feedback">
+        <div class="feedback-head" id="fb-head"></div>
+        <div class="feedback-body" id="fb-body"></div>
+      </div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+        ${currentQ < QUESTIONS.length-1 ? 'Question Suivante →' : 'Voir mes Résultats ✦'}
+      </button>
+    </div>
+  `;
+  updateHUD();
+  answered = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function choose(idx) {
+  if (answered) return;
+  answered = true;
+  const q = QUESTIONS[currentQ];
+  const correct = q.choices[idx].ok;
+
+  // Style buttons
+  document.querySelectorAll('.choice').forEach((b,i) => {
+    b.classList.add('disabled');
+    if (q.choices[i].ok) b.classList.add('reveal');
+  });
+  const chosen = document.getElementById('c'+idx);
+  chosen.classList.remove('reveal','disabled');
+  chosen.classList.add(correct ? 'correct' : 'wrong');
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  const fbHead = document.getElementById('fb-head');
+  const fbBody = document.getElementById('fb-body');
+  fb.classList.add('show', correct ? 'ok' : 'bad');
+  fbHead.textContent = correct ? '✦ Réponse correcte !' : '✗ Pas tout à fait…';
+  fbBody.innerHTML = correct ? q.ok_msg : q.fail_msg;
+
+  if (correct) {
+    score++;
+  } else {
+    lives--;
+    if (lives < 0) lives = 0;
+  }
+  updateHUD();
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion() {
+  // Check if we hit tier boundary
+  const prevTier = QUESTIONS[currentQ].tier;
+  currentQ++;
+
+  if (currentQ >= QUESTIONS.length) {
+    endGame();
+    return;
+  }
+
+  const nextTier = QUESTIONS[currentQ].tier;
+  if (nextTier > prevTier) {
+    showTierUnlock(prevTier, nextTier);
+  } else {
+    renderScene();
+  }
+}
+
+function showTierUnlock(completedTierId, nextTierId) {
+  document.getElementById('scene-area').innerHTML = '';
+  const tier = TIERS.find(t => t.id === completedTierId);
+  const ul = document.getElementById('tier-unlock');
+  document.getElementById('ul-badge').textContent = tier.emoji;
+  document.getElementById('ul-title').innerHTML = `<span style="color:${tier.color}">${tier.unlock} Débloqué !</span>`;
+  document.getElementById('ul-sub').textContent = `Vous maîtrisez le niveau ${tier.name}. Préparez-vous au palier suivant !`;
+  document.getElementById('ul-chips').innerHTML = tier.topics.map(t => `<span class="unlock-chip">✓ ${t}</span>`).join('');
+  ul.style.display = 'block';
+  ul.classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function continueTier() {
+  renderScene();
+}
+
+function updateHUD() {
+  const langObj = LANGUAGES.find(l => l.id === selectedLang) || LANGUAGES[0];
+  const q = QUESTIONS[Math.min(currentQ, QUESTIONS.length-1)];
+  const tier = TIERS.find(t => t.id === q.tier);
+
+  document.getElementById('hud-lang').textContent = langObj.label;
+  const hudTier = document.getElementById('hud-tier');
+  hudTier.textContent = tier.name;
+  hudTier.style.background = tier.bg;
+  hudTier.style.border = `1px solid ${tier.border}`;
+  hudTier.style.color = tier.color;
+
+  const pct = Math.round((currentQ / QUESTIONS.length) * 100);
+  document.getElementById('hud-bar').style.width = pct + '%';
+  document.getElementById('hud-score').textContent = score;
+
+  const livesEl = document.getElementById('hud-lives');
+  livesEl.innerHTML = Array.from({length:MAX_LIVES}, (_,i) =>
+    `<span class="heart ${i >= lives ? 'lost' : ''}">♥</span>`
+  ).join('');
+}
+
+/* ============================================================
+   END GAME
+   ============================================================ */
+function endGame() {
+  setScreen('end');
+  const total = QUESTIONS.length;
+  const pct = Math.round((score / total) * 100);
+
+  let grade, gradeColor, trophy, rankName, msg;
+  if (pct >= 95) { grade='SS'; gradeColor='#f97316'; trophy='🌌'; rankName='Légende Absolue'; msg='Vous avez transcendé tous les paliers. La magie du code n\'a plus de secret pour vous.'; }
+  else if (pct >= 85) { grade='S'; gradeColor='#f0c040'; trophy='👑'; rankName='Archimage'; msg='Maîtrise quasi-parfaite. Vous êtes l\'élite de l\'Académie du Code.'; }
+  else if (pct >= 75) { grade='A'; gradeColor='#c084fc'; trophy='🏛️'; rankName='Maître du Code'; msg='Excellent niveau. Vos fondations sont solides et votre logique est affûtée.'; }
+  else if (pct >= 60) { grade='B'; gradeColor='#60a5fa'; trophy='🔮'; rankName='Mage Confirmé'; msg='Bon niveau ! Quelques concepts à consolider, mais vous avancez vite.'; }
+  else if (pct >= 45) { grade='C'; gradeColor='#34d399'; trophy='⚔️'; rankName='Apprenti Courageux'; msg='Le chemin est encore long, mais vous avez le potentiel. Continuez !'; }
+  else { grade='D'; gradeColor='#6b7280'; trophy='🌱'; rankName='Novice Prometteur'; msg='Chaque grand mage a commencé au même endroit. Rejouez et progressez !'; }
+
+  document.getElementById('end-trophy').textContent = trophy;
+  document.getElementById('end-rank').innerHTML = `<span style="color:${gradeColor}">${rankName}</span>`;
+  document.getElementById('end-score').textContent = `${score} / ${total} (${pct}%)`;
+
+  const gradeEl = document.getElementById('end-grade');
+  gradeEl.textContent = grade;
+  gradeEl.style.color = gradeColor;
+  gradeEl.style.borderColor = gradeColor;
+  gradeEl.style.boxShadow = `0 0 30px ${gradeColor}40`;
+
+  const stars = pct >= 90 ? 5 : pct >= 75 ? 4 : pct >= 60 ? 3 : pct >= 40 ? 2 : 1;
+  document.getElementById('end-stars').innerHTML =
+    Array.from({length:5},(_,i)=>`<span class="star ${i<stars?'lit':''}">★</span>`).join('');
+
+  document.getElementById('end-tiers-done').innerHTML =
+    TIERS.map(t => `<span class="et-chip" style="color:${t.color};border-color:${t.border};background:${t.bg}">${t.emoji} ${t.name}</span>`).join('');
+
+  document.getElementById('end-msg').textContent = msg;
+}
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function setScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById('screen-'+id);
+  el.classList.add('active');
+  const flexScreens = ['lang','tiers','end'];
+  el.style.display = flexScreens.includes(id) ? 'flex' : 'block';
+}
+
+/* ============================================================
+   ABOUT MODAL
+   ============================================================ */
+function openAbout() {
+  document.getElementById('about-overlay').classList.add('open');
+}
+function closeAbout() {
+  document.getElementById('about-overlay').classList.remove('open');
+}
+function closeAboutOutside(e) {
+  if (e.target === document.getElementById('about-overlay')) closeAbout();
+}
+function openLink(url) {
+  window.open(url, '_blank');
+}
+function copyText(text, msg) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  const toast = document.getElementById('copy-toast');
+  toast.textContent = '✓ ' + (msg || 'Copié !');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+initLangGrid();
+</script>
+</body>
+</html>
